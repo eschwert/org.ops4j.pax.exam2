@@ -13,30 +13,32 @@
  */
 package org.ops4j.pax.exam.sample.karaf;
 
-import static org.ops4j.pax.exam.CoreOptions.maven;
-import static org.ops4j.pax.exam.CoreOptions.mavenBundle;
+import static org.ops4j.pax.exam.CoreOptions.*;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.karafDistributionConfiguration;
 import static org.ops4j.pax.exam.karaf.options.KarafDistributionOption.keepRuntimeFolder;
 
 import java.io.File;
 
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+
 import javax.inject.Inject;
 
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.ops4j.pax.exam.Configuration;
 import org.ops4j.pax.exam.ConfigurationManager;
 import org.ops4j.pax.exam.Option;
-import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.karaf.options.KarafDistributionOption;
 import org.ops4j.pax.exam.options.MavenArtifactUrlReference;
 import org.ops4j.pax.exam.options.MavenUrlReference;
 import org.ops4j.pax.exam.sample8.ds.Calculator;
+import org.ops4j.pax.exam.testng.listener.PaxExam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
+import org.testng.annotations.Listeners;
+import org.testng.annotations.Test;
 
-@RunWith(PaxExam.class)
+@Listeners(PaxExam.class)
 public class CalculatorITest {
 
     private static Logger LOG = LoggerFactory.getLogger(CalculatorITest.class);
@@ -46,6 +48,7 @@ public class CalculatorITest {
 
     @Configuration
     public Option[] config() {
+
         MavenArtifactUrlReference karafUrl = maven()
             .groupId("org.apache.karaf")
             .artifactId("apache-karaf")
@@ -59,17 +62,20 @@ public class CalculatorITest {
             .classifier("features")
             .type("xml");
         return new Option[] {
+            mavenBundle("org.testng", "testng", "6.8.17"),
+            mavenBundle("org.ops4j.pax.exam", "pax-exam-testng", "4.5.0-SNAPSHOT"),
             // KarafDistributionOption.debugConfiguration("5005", true),
             karafDistributionConfiguration()
                 .frameworkUrl(karafUrl)
                 .unpackDirectory(new File("target/exam"))
                 .useDeployFolder(false),
-            keepRuntimeFolder(),
-            KarafDistributionOption.features(karafStandardRepo , "scr"),
+            //keepRuntimeFolder(),
+            KarafDistributionOption.features(karafStandardRepo, "scr"),
             mavenBundle()
                 .groupId("org.ops4j.pax.exam.samples")
                 .artifactId("pax-exam-sample8-ds")
                 .versionAsInProject().start(),
+                //junitBundles(),
        };
     }
 
